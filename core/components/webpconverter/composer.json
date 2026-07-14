@@ -1,0 +1,10 @@
+{
+  "name": "g-ek/webpconverter",
+  "description": "Modern WebP image converter for MODX 3",
+  "license": "GPL-2.0-or-later",
+  "autoload": {
+    "psr-4": {
+      "WebpConverter\\": "src/"
+    }
+  }
+}

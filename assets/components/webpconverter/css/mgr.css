@@ -1,0 +1,10 @@
+/* WebpConverter Custom Manager Page Styles */
+.primary-button button {
+    background-color: var(--accent, #2563eb) !important;
+    color: #fff !important;
+    border-color: var(--accent, #2563eb) !important;
+}
+
+#webpconverter-status-box strong {
+    font-weight: bold;
+}

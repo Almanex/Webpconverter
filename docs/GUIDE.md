@@ -1,79 +1,67 @@
-# User Guide: WebpConverter Component for MODX 3
+# WebpConverter User Guide — How to Optimize Images in MODX 3
 
-The **WebpConverter** component allows you to automatically speed up the loading time of your MODX 3 website by converting images (JPEG, PNG) into the modern, lightweight **WebP** format. The plugin automatically replaces image links in the HTML output on the fly, serving optimized versions to users.
-
----
-
-## 1. Installation
-
-1. Log in to your MODX manager panel (administration area).
-2. Navigate to **Apps** -> **Package Management**.
-3. Click the **Download Extras** or upload dropdown and select your precompiled transport package: `webpconverter-1.0.0-pl.transport.zip`.
-4. Click **Install** next to the loaded package and follow the on-screen instructions.
-
-After installation, the following components will be created in your system:
-- A system plugin that replaces image links with `.webp` on the fly.
-- A **WEBP Converter** menu item in the **Apps** (Extras) section.
-- A **WEBP Optimization** widget on the main dashboard page.
+> [!NOTE]
+> **💡 Summary:** WebpConverter is a ready-to-use component for MODX 3 that automatically compresses and converts JPEG/PNG images to the modern, lightweight WebP format on the fly using the `cwebp` utility. This helps you boost your Google PageSpeed scores, provides a clear dashboard widget showing disk space savings, and offers a manager page to run bulk scan, convert, and orphaned file cleanup operations.
 
 ---
 
-## 2. System Settings
+## Application Overview
 
-The component settings are located under **System Settings** (gear icon in the top right corner -> System Settings) inside the `webpconverter` namespace.
-
-### Available Parameters:
-
-1. **`webpconverter.cwebp_params_jpeg`** (JPEG compression settings)
-   - **Default Value**: `-metadata none -quiet -pass 10 -m 6 -mt -q 65 -low_memory`
-   - **Description**: Command-line arguments for the `cwebp` utility used during JPEG compression.
-     - `-metadata none` — strips all EXIF/IPTC metadata to reduce file size.
-     - `-quiet` — disables verbose output logging.
-     - `-pass 10` — number of passes for optimizing entropy (max 10).
-     - `-m 6` — compression method (0-6, where 6 provides best compression but takes more CPU time).
-     - `-mt` — enables multi-threading to speed up processing.
-     - `-q 65` — compression quality (scale 0-100, where 65 is the optimal balance of quality and weight for JPEG).
-     - `-low_memory` — optimizes memory usage on the server.
-
-2. **`webpconverter.cwebp_params_png`** (PNG compression settings)
-   - **Default Value**: `-metadata none -quiet -pass 10 -m 6 -alpha_q 85 -mt -alpha_filter best -alpha_method 1 -q 70 -low_memory`
-   - **Description**: Command-line arguments for compressing PNG files with transparency support.
-     - `-alpha_q 85` — quality of alpha channel compression.
-     - `-alpha_filter best` — alpha filtering algorithm.
-     - `-alpha_method 1` — alpha compression method.
-     - `-q 70` — compression quality for main PNG colors.
-
-3. **`webpconverter.exclude_dirs`** (Excluded directories)
-   - **Default Value**: `core,connectors,manager,webp,tmp,.git,vendor,node_modules`
-   - **Description**: Comma-separated list of folders (relative to the site root) that the image scanner should completely ignore. It is highly recommended to exclude system directories and build folders to avoid unnecessary server load.
-
-4. **`webpconverter.disable_for_logged_user`** (Disable for authorized users)
-   - **Default Value**: `No` (false)
-   - **Description**: If set to `Yes` (true), the plugin will not rewrite image paths to `.webp` for administrators and managers logged into the MODX manager. This is useful for testing original layouts or debugging stylesheet integration.
+Web technologies are evolving rapidly, and website loading speed remains a critical factor for SEO search rankings. The **WebpConverter** component is specifically designed for MODX 3 to accelerate page load times by optimizing graphic assets. It automatically handles the conversion of JPG, JPEG, and PNG images into the next-generation **WebP** format. Integrated via a native system plugin, the component swaps image source paths dynamically in the HTML markup, remaining completely invisible to the site administrator and visitors.
 
 ---
 
-## 3. Usage
+## Component Features
 
-### Custom Manager Page (CMP Interface)
+### On-the-Fly Image Path Replacement
+Once installed and enabled, the plugin hooks into the `OnWebPagePrerender` event. It parses the prerendered HTML output and dynamically updates links inside `<img>` tags, `srcset` attributes, and inline CSS styles to target the newly generated `.webp` files.
 
-Go to **Apps** -> **WEBP Converter**. The control panel provides the following actions:
+### Site Scanning and Tracking
+The scanner utility recursively searches the site's directories for original images, skipping system folders and custom exclusions. It populates a database table to keep track of conversion statuses across the entire site.
 
-1. **Scan Site**:
-   - Click the **Scan Site** button to search for all images on the server. The scanner will find all JPG, JPEG, and PNG files, except those located in the excluded folders.
-   - A live progress indicator will show current scanning status.
-2. **Convert Files**:
-   - Click the **Convert Files** button to start generating `.webp` versions of the discovered images.
-   - Conversion runs in batches (defaulting to 10 files per request) to prevent server script timeouts. The progress bar shows the completion percentage.
-3. **Clean Orphaned Files**:
-   - Click the **Clean Orphaned Files** button to delete `.webp` files whose original JPEGs or PNGs have been deleted (e.g. after removing images via the media manager or gallery). This helps reclaim server disk space.
+### Queue-Based Batch Conversion
+Compression is executed in controlled batches. You can configure the queue size to stay within PHP script execution limits (timeouts) and avoid overloading the server's CPU when processing hundreds of files.
 
-### Dashboard Widget
+### Orphaned File Cleanup
+When you delete an original image via the MODX media manager, its `.webp` counterpart is no longer needed. The cleanup tool scans the server for these orphaned `.webp` files and safely removes them to reclaim disk space.
 
-On the main dashboard page, the **WEBP Optimization** widget displays live statistics:
-- Total images found on the site.
-- Count of already optimized images.
-- Current optimization progress as a percentage.
-- Total disk space saved (in MB or KB).
-- **Refresh** button to recalculate statistics instantly.
-- **Go to Converter** button to quickly navigate to the CMP.
+---
+
+## Step-by-Step Installation and Setup
+
+Follow these steps to set up and run the component on your website:
+
+1. **Step 1: Download the Package** — Download the precompiled transport archive `webpconverter-1.0.0-pl.transport.zip` from the latest release on the GitHub repository.
+2. **Step 2: Upload to MODX** — Log in to your MODX 3 manager dashboard, navigate to **Apps** -> **Package Management**, click the dropdown and choose to upload your ZIP package.
+3. **Step 3: Run the Installer** — Click the "Install" button next to the uploaded package and follow the instructions to set up database tables, menus, and the system plugin.
+4. **Step 4: Verify Settings** — Navigate to "System Settings" (gear icon in the top-right corner), select the `webpconverter` namespace, and verify that the exclusions and `cwebp` command-line parameters match your hosting environment.
+5. **Step 5: Scan for Images** — Go to **Apps** -> **WEBP Converter** and click the **Scan Site** button to build the image database.
+6. **Step 6: Execute Conversion** — Click the **Convert Files** button to start the optimization process. Wait for the progress bar to reach 100%.
+
+---
+
+## Optimization Tips and Settings
+
+The table below lists the primary configuration parameters for tuning the `cwebp` compression engine:
+
+| Setting Key | Default Value | Recommendations |
+| --- | --- | --- |
+| `webpconverter.cwebp_params_jpeg` | `-metadata none -quiet -pass 10 -m 6 -mt -q 65 -low_memory` | A quality setting of `-q 65` gives the best file size-to-quality ratio for JPEGs. Increase to `80` if you need high-resolution photographer assets. |
+| `webpconverter.cwebp_params_png` | `-metadata none -quiet -pass 10 -m 6 -alpha_q 85 -mt -alpha_filter best -alpha_method 1 -q 70 -low_memory` | The `-alpha_q 85` setting optimizes PNG transparency gradients without introducing visible artifacts. |
+| `webpconverter.exclude_dirs` | `core,connectors,manager,webp,tmp,.git,vendor,node_modules` | Ensure system and build folders are excluded so the scanner does not waste CPU cycles index-searching third-party libraries. |
+| `webpconverter.disable_for_logged_user` | `No` (false) | Set to `Yes` if you are designing or debugging layouts and need to verify original image quality as an administrator. |
+
+---
+
+## FAQ and Troubleshooting
+
+### What should I do if the conversion process fails to start?
+Ensure that the `cwebp` utility is installed on your server and that the PHP runtime has permission to run external commands (via `exec`). You can verify this by checking with your hosting provider.
+
+### Why are my images not changing to `.webp` in the browser?
+1. Check that the WebpConverter system plugin is enabled and registered to the `OnWebPagePrerender` event.
+2. Verify if the `webpconverter.disable_for_logged_user` setting is active while you are logged into the MODX manager.
+3. Clear the MODX site cache by selecting `Manage` -> `Clear Cache` from the top menu.
+
+### Where are the optimized files stored?
+The `.webp` files are created in the exact same directories as the original images (e.g. `assets/images/photo.webp` will be created right next to `assets/images/photo.jpg`).
